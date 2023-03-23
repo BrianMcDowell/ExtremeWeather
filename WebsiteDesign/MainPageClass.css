@@ -1,8 +1,38 @@
 .titleText {
     font-family: "Times New Roman", Times, Serif;
-    font-size: 3cm;
+    font-size: 0.75cm;
 }
 
-body {
-    background-color: #03f7fc;
+.mainBody {
+    background-color: #98e6fa;
+    font-family: "Times New Roman", Times, Serif;
+}
+
+.mainCheckboxGroup{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+/*Part of the MainCheckBoxGroup Class
+ */
+.mainCheckboxGroup label {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.categoryOption {
+    font-size: 25px;
+}
+
+/*Submit Button
+ */
+.submitBtn {
+    display: inline-block;
+}
+
+/*Clear Button
+ */
+.clearBtn {
+    display: inline-block;
+    margin-right: 10px;
 }

@@ -3,9 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="MainPageClass.css">
+
+    <!-- Bootstrap JS (and dependencies) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 </head>
-<body>
-<h1 class ="titleText"> <b> Extreme Weather and Housing Costs </b> </h1>
-</body>
+<body class="mainBody">
+    <form id = "weatherForm" style="text-align: center;">
+    <nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
+      <div class="container-fluid">
+          <a class="navbar-brand titleText" href="#"><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Pricing</a>
+            </li>
+          </ul>
+          <span class="navbar-text">
+            Navbar text with an inline element
+          </span>
+        </div>
+      </div>
+    </nav>
+    <!-- CHOOSE WEATHER INTEREST -->
+    <p class="categoryOption"><u>Choose your Weather Interest:</u></p>
+    <div class="checkbox-group" id="WeatherCheckbox">
+      <input type="checkbox" id="option1" name="options[]" value="Tornado">
+      <label for="option1">Tornado</label>
+      <input type="checkbox" id="option2" name="options[]" value="Hail">
+      <label for="option2">Hail</label>
+      <input type="checkbox" id="option3" name="options[]" value="Wind">
+      <label for="option3">Wind</label>
+    </div>
+
+    <p><br></p>
+    <!-- CHOOSE YEAR -->
+    <div class="dropdown" id="YearDropdown">
+      <p class="categoryOption"> <u>Choose year:</u>
+        <button class="btn btn-secondary dropdown-toggle" style="display: inline-block; position: relative; left: 0.5%;" type="button" id="YearDropMenu" data-toggle="dropdown" aria-expanded="false">
+        Year
+      </button>
+      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="YearDropMenu">
+        <li><a class="dropdown-item" href="#">Year 1</a></li>
+        <li><a class="dropdown-item" href="#">Year 2</a></li>
+        <li><a class="dropdown-item" href="#">Year 3</a></li>
+      </ul></p>
+    </div>
+
+    <p><br></p>
+    <!-- CHOOSE RENT COST -->
+    <div class="dropdown" id="RentDropdown">
+      <p class="categoryOption"> <u>Choose Rent Cost:</u>
+        <button class="btn btn-secondary dropdown-toggle" style="display: inline-block; position: relative; left: 0.5%;" type="button" id="RentDropMenu" data-bs-toggle="dropdown" aria-expanded="false">
+        Rent Cost
+      </button>
+      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="RentDropMenu">
+        <li><a class="dropdown-item" href="#">Action</a></li>
+        <li><a class="dropdown-item" href="#">Another action</a></li>
+        <li><a class="dropdown-item" href="#">Something else here</a></li>
+      </ul></p>
+    </div>
+
+
+    <p><br></p>
+    <!-- CHOOSE NUMBER OF ROOMS -->
+    <p class="categoryOption"><u>Choose your Desired Number of Rooms:</u></p>
+    <div class="checkbox-group" id="RoomsCheckbox">
+      <input type="checkbox" id="option1" name="options[]" value="OneRoom">
+      <label for="option1">1 Room</label>
+      <input type="checkbox" id="option2" name="options[]" value="TwoRooms">
+      <label for="option2">2 Rooms</label>
+      <input type="checkbox" id="option3" name="options[]" value="ThreeRooms">
+      <label for="option3">3 Rooms</label>
+        <input type="checkbox" id="option3" name="options[]" value="FourRooms">
+      <label for="option3">4 Rooms</label>
+    </div>
+
+    <!-- SUBMIT AND CLEAR BUTTONS -->
+    <p><br></p>
+    <input type="submit" value="Submit" class="submitBtn">
+    <input type="button" value="Clear" onclick="resetForm()" class="clearBtn">
+    </form>
+<!-- Entire Form Reset function -->
+<script>
+    function resetForm() {
+        document.getElementById("weatherForm").reset();
+        document.getElementById("WeatherCheckbox").checked = false;
+        document.getElementById("YearDropdown").selectedIndex = 0;
+        document.getElementById("RentDropdown").selectedIndex = 0;
+        document.getElementById("RoomsCheckbox").checked = false;
+    }
+</script>
+    </body>
 </html>
+
