@@ -1,1 +1,1 @@
-web: gunicorn extreme-weather.wsgi
+web: gunicorn ExtremeWeather.wsgi
