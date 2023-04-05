@@ -1,3 +1,6 @@
+# Custom
+/cise_oracle_info.py
+
 # Django #
 *.log
 *.pot
