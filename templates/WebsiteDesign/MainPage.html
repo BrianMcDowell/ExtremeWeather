@@ -12,7 +12,7 @@
 
 </head>
 <body class="mainBody">
-    <form id = "weatherForm" style="text-align: center;" action="{% url 'results' %} ">
+    <form id = "weatherForm" style="text-align: center;" action="{% url 'views' %} ">
     <nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
       <div class="container-fluid">
           <a class="navbar-brand titleText" href="#"><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
@@ -22,13 +22,13 @@
         <div class="collapse navbar-collapse" id="navbarText">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link active" aria-current="page" href="{% url 'views' %} " >Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Features</a>
+              <a class="nav-link" href="{% url 'results' %} ">Single County Deep Dive</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
+              <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
             </li>
           </ul>
           <span class="navbar-text">

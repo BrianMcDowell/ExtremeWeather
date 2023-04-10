@@ -20,5 +20,6 @@ from ew import views
 urlpatterns = [
     path('', views.my_view, name='views'),
     # other URL patterns go here
-    path('results/', views.results, name='results')
+    path('results/', views.results, name='results'),
+    path('twofips/', views.twofips, name='twofips'),
 ]
