@@ -18,7 +18,21 @@ def oracledb_conn():
 # Create your views here.
 def my_view(request):
     # Write SQL queries to show how many rows are present in database
-    return render(request, 'WebsiteDesign/MainPage.html')
+    conn = oracledb_conn()
+    cursor = conn.cursor()
+    context = {}
+    if request.method == "POST":
+        tuple_count_query = """
+        SELECT l.lnum + p.pnum + h.hnum + e.enum
+        FROM (SELECT COUNT(*) AS lnum FROM michaelrodelo.location) l,
+            (SELECT COUNT(*) AS pnum FROM michaelrodelo.populations) p,
+            (SELECT COUNT(*) AS hnum FROM michaelrodelo.housing_prices) h,
+            (SELECT COUNT(*) AS enum FROM michaelrodelo.events) e
+        """
+        res = cursor.execute(tuple_count_query).fetchone()[0]
+        context["tuple_count_res"] = res
+    conn.close()
+    return render(request, 'WebsiteDesign/MainPage.html', context=context)
 
 
 def results(request):
@@ -54,6 +68,7 @@ def results(request):
             wx_ioi.append("Wind")
         query_items = (fips, tornado, hail, wind)
         ioi = request.POST["btnradio"]
+        wx_vs_wx = False
         if ioi == "pop":
             select_query = """
                 WITH target AS (
@@ -116,8 +131,12 @@ def results(request):
                     GROUP BY  allyears.year)
                 SELECT * FROM events1 NATURAL JOIN events2 NATURAL JOIN events3 ORDER BY year
             """
+            wx_vs_wx = True
             context["ioi"] = json.dumps("Tornado")
         res = cursor.execute(select_query, query_items)
+
+        """if not wx_vs_wx:
+            the_chart.pop("data3")"""
         for item in res:
             the_chart["yr"].append(item[0])
             the_chart["data1"].append(item[1])
@@ -132,7 +151,7 @@ def results(request):
     location_res = cursor.execute(
         """
         SELECT fips, countyname, statename
-        FROM location
+        FROM michaelrodelo.location
         ORDER BY fips ASC
         """
     )
@@ -212,7 +231,7 @@ def twofips(request):
     location_res = cursor.execute(
         """
         SELECT fips, countyname, statename
-        FROM location
+        FROM michaelrodelo.location
         ORDER BY fips ASC
         """
     )

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>XW</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="MainPageClass.css">
 
@@ -12,38 +12,38 @@
 
 </head>
 <body class="mainBody">
-
-
-    <nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
-      <div class="container-fluid">
-          <a class="navbar-brand titleText" href="{% url 'views' %} " ><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
+<nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
+    <div class="container-fluid">
+        <a class="navbar-brand titleText" href="{% url 'views' %} " ><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'views' %} " >Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'results' %} ">Single County Deep Dive</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
-            </li>
-          </ul>
-          <span class="navbar-text">
-            Navbar text with an inline element
-          </span>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'views' %} " >Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'results' %} ">Single County Deep Dive</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
+                </li>
+            </ul>
         </div>
-      </div>
-    </nav>
+    </div>
+</nav>
     <!-- CHOOSE WEATHER INTEREST -->
-    <p class="categoryOption"><u>Title?</u></p>
+<p class="categoryOption"><u>Title?</u></p>
     A description, maybe some example charts. Some links to the other pages, though they are available in the navigation drop down.
-
-    <p><br></p>
-
+<p><br></p>
+<form id = "countForm" style="text-align: left;" action="{% url 'views' %} " method="post">
+    <input type="submit" value="Tuple Count" class="submitBtn">
+    {% csrf_token %}
+</form>
+{% if tuple_count_res %}
+<p>Total Tuple Count: {{ tuple_count_res }}</p>
+{% endif %}
 
     <p><br></p>
     </body>

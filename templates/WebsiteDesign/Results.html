@@ -34,9 +34,6 @@
               <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
             </li>
           </ul>
-          <span class="navbar-text">
-            Navbar text with an inline element
-          </span>
         </div>
       </div>
     </nav>
@@ -119,7 +116,6 @@
                     let d1={{ the_chart.data1|safe }};
                     let d2={{ the_chart.data2|safe }};
                     let d3={{ the_chart.data3|safe }};
-                    let d3hide={{ d3hide|safe }};
                     let ioi={{ ioi|safe }};
 
                     let wx={{ wx_ioi|safe }};
@@ -131,7 +127,7 @@
                             datasets: [
                                 {type: 'line', label: ioi.toString(), data: d1, yAxisID: 'y1',},
                                 {type: 'bar', label: wx.toString(), data: d2, yAxisID: 'y2',},
-                                {type: 'bar', label: wx.toString(), data: d3, yAxisID: 'y2', hidden: d3hide},
+
                             ]
                         },
                         options: {
@@ -151,6 +147,22 @@
                             }
                         }
                     });
+
+                    if ( d3.length > 0) {
+                        myChart.data.datasets.forEach((dataset) => {
+                            dataset.type = "bar";
+                        });
+                        myChart.data.datasets[1].label = "Hail";
+                        myChart.data.datasets.push({
+                            type:'bar',
+                            label:'Wind',
+                            data:{{ the_chart.data3|safe}},
+                            yAxisID:'y2',
+                        });
+
+                        myChart.update();
+                    }
+                    //{type: 'bar', label: wx.toString(), data: d3, yAxisID: 'y2', hidden: d3hide},
                 </script>
                 <!-- https://www.chartjs.org/docs/latest/developers/updates.html Could be useful to update chart instead of using hidden on dataset -->
                 <div class="row">
