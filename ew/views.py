@@ -41,6 +41,7 @@ def results(request):
         hail = "NONE"
         wind = "NONE"
         fips = request.POST["fips"]
+        context["fips"] = fips
         wx_ioi = []
         if "Tornado" in request.POST.keys():
             tornado = "TORN"
@@ -159,6 +160,8 @@ def twofips(request):
         wind = "NONE"
         fips1 = request.POST["fips1"]
         fips2 = request.POST["fips2"]
+        the_chart["d1fips"] = json.dumps(fips1)
+        the_chart["d2fips"] = json.dumps(fips2)
         wx_ioi = []
         if "Tornado" in request.POST.keys():
             tornado = "TORN"
@@ -205,7 +208,6 @@ def twofips(request):
                 context["d3hide"] = 0
         context["the_chart"] = the_chart
 
-    context["the_chart"] = the_chart
     location_data = []
     location_res = cursor.execute(
         """

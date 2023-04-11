@@ -12,10 +12,11 @@
 
 </head>
 <body class="mainBody">
-    <form id = "weatherForm" style="text-align: center;" action="{% url 'views' %} ">
+
+
     <nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
       <div class="container-fluid">
-          <a class="navbar-brand titleText" href="#"><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
+          <a class="navbar-brand titleText" href="{% url 'views' %} " ><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -38,74 +39,13 @@
       </div>
     </nav>
     <!-- CHOOSE WEATHER INTEREST -->
-    <p class="categoryOption"><u>Choose your Weather Interest:</u></p>
-    <div class="checkbox-group" id="WeatherCheckbox">
-      <input type="checkbox" id="option1" name="options[]" value="Tornado">
-      <label for="option1">Tornado</label>
-      <input type="checkbox" id="option2" name="options[]" value="Hail">
-      <label for="option2">Hail</label>
-      <input type="checkbox" id="option3" name="options[]" value="Wind">
-      <label for="option3">Wind</label>
-    </div>
+    <p class="categoryOption"><u>Title?</u></p>
+    A description, maybe some example charts. Some links to the other pages, though they are available in the navigation drop down.
 
     <p><br></p>
-    <!-- CHOOSE YEAR -->
-    <div class="dropdown" id="YearDropdown">
-      <p class="categoryOption"> <u>Choose year:</u>
-        <button class="btn btn-secondary dropdown-toggle" style="display: inline-block; position: relative; left: 0.5%;" type="button" id="YearDropMenu" data-toggle="dropdown" aria-expanded="false">
-        Year
-      </button>
-      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="YearDropMenu">
-        <li><a class="dropdown-item" href="#">Year 1</a></li>
-        <li><a class="dropdown-item" href="#">Year 2</a></li>
-        <li><a class="dropdown-item" href="#">Year 3</a></li>
-      </ul></p>
-    </div>
-
-    <p><br></p>
-    <!-- CHOOSE RENT COST -->
-    <div class="dropdown" id="RentDropdown">
-      <p class="categoryOption"> <u>Choose Rent Cost:</u>
-        <button class="btn btn-secondary dropdown-toggle" style="display: inline-block; position: relative; left: 0.5%;" type="button" id="RentDropMenu" data-bs-toggle="dropdown" aria-expanded="false">
-        Rent Cost
-      </button>
-      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="RentDropMenu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-      </ul></p>
-    </div>
 
 
     <p><br></p>
-    <!-- CHOOSE NUMBER OF ROOMS -->
-    <p class="categoryOption"><u>Choose your Desired Number of Rooms:</u></p>
-    <div class="checkbox-group" id="RoomsCheckbox">
-      <input type="checkbox" id="option1" name="options[]" value="OneRoom">
-      <label for="option1">1 Room</label>
-      <input type="checkbox" id="option2" name="options[]" value="TwoRooms">
-      <label for="option2">2 Rooms</label>
-      <input type="checkbox" id="option3" name="options[]" value="ThreeRooms">
-      <label for="option3">3 Rooms</label>
-        <input type="checkbox" id="option3" name="options[]" value="FourRooms">
-      <label for="option3">4 Rooms</label>
-    </div>
-
-    <!-- SUBMIT AND CLEAR BUTTONS -->
-    <p><br></p>
-    <input type="submit" value="Submit" class="submitBtn">
-    <input type="button" value="Clear" onclick="resetForm()" class="clearBtn">
-    </form>
-<!-- Entire Form Reset function -->
-<script>
-    function resetForm() {
-        document.getElementById("weatherForm").reset();
-        document.getElementById("WeatherCheckbox").checked = false;
-        document.getElementById("YearDropdown").selectedIndex = 0;
-        document.getElementById("RentDropdown").selectedIndex = 0;
-        document.getElementById("RoomsCheckbox").checked = false;
-    }
-</script>
     </body>
 </html>
 

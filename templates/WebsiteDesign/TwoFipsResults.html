@@ -18,7 +18,7 @@
 
     <nav class="navbar sticky-top navbar-light" style="background-color: #fa8b37;">
       <div class="container-fluid">
-          <a class="navbar-brand titleText" href="#"><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
+          <a class="navbar-brand titleText" href="{% url 'views' %} " ><b>CIS4301 DEMO: ExtremeWeather Project UNNAMED</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -106,12 +106,7 @@
     }
 </script>
 
-    <div>
-        <p>yr: {{ the_chart.yr|safe }}</p>
-        <p>data1: {{ the_chart.data1|safe }}</p>
-        <p>data2: {{ the_chart.data2|safe }}</p>
 
-    </div>
     <div>
         <canvas id="myChart" width="800" height="500"></canvas>
     </div>
@@ -120,14 +115,17 @@
         let d1={{ the_chart.data1|safe }};
         let d2={{ the_chart.data2|safe }};
 
+        let d1fips={{ the_chart.d1fips|safe }};
+        let d2fips={{ the_chart.d2fips|safe }};
+
         let ctx = document.getElementById('myChart');
 
         let myChart = new Chart(ctx, {
             data: {
                 labels: yr,
                 datasets: [
-                    {type: 'bar', label: "l1", data: d1},
-                    {type: 'bar', label: "l2", data: d2},
+                    {type: 'bar', label: d1fips.toString(), data: d1},
+                    {type: 'bar', label: d2fips.toString(), data: d2},
                 ]
             },
             options: {
@@ -136,5 +134,10 @@
         });
     </script>
 
+    <div>
+        <p>yr: {{ the_chart.yr|safe }}</p>
+        <p>data1: {{ the_chart.data1|safe }}</p>
+        <p>data2: {{ the_chart.data2|safe }}</p>
+    </div>
     </body>
 </html>
