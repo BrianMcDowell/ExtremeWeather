@@ -46,6 +46,7 @@ def results(request):
         "data3": [],
     }
     context["d3hide"] = 1
+    fips = "None"
     if request.method == "POST":
         """ Obtain query items from request.POST """
         for key, val in request.POST.items():
@@ -55,7 +56,7 @@ def results(request):
         hail = "NONE"
         wind = "NONE"
         fips = request.POST["fips"]
-        context["fips"] = fips
+        #context["fips"] = fips
         wx_ioi = []
         if "Tornado" in request.POST.keys():
             tornado = "TORN"
@@ -135,8 +136,7 @@ def results(request):
             context["ioi"] = json.dumps("Tornado")
         res = cursor.execute(select_query, query_items)
 
-        """if not wx_vs_wx:
-            the_chart.pop("data3")"""
+
         for item in res:
             the_chart["yr"].append(item[0])
             the_chart["data1"].append(item[1])
@@ -147,6 +147,7 @@ def results(request):
         context["the_chart"] = the_chart
 
         context["wx_ioi"] = json.dumps(", ".join(wx_ioi))
+    context["fips"] = fips
     location_data = []
     location_res = cursor.execute(
         """
@@ -171,14 +172,16 @@ def twofips(request):
         "data1": [],
         "data2": [],
     }
+    fips1 = "None"
+    fips2 = "None"
     if request.method == "POST":
         for key, val in request.POST.items():
             print(key, val)
         tornado = "NONE"
         hail = "NONE"
         wind = "NONE"
-        fips1 = request.POST["fips1"]
-        fips2 = request.POST["fips2"]
+        fips1 = int(request.POST["fips1"])
+        fips2 = int(request.POST["fips2"])
         the_chart["d1fips"] = json.dumps(fips1)
         the_chart["d2fips"] = json.dumps(fips2)
         wx_ioi = []
@@ -191,32 +194,51 @@ def twofips(request):
         if "Wind" in request.POST.keys():
             wind = "WIND"
             wx_ioi.append("Wind")
-        query_items = (fips1, fips2, fips1, fips2)# tornado, hail, wind)
-        select_query = """
-            WITH allevents AS (
-                SELECT EXTRACT(MONTH FROM event_date) AS mon, EXTRACT(YEAR FROM event_date) AS yr, location_id, event_type
-                FROM michaelrodelo.events
-                WHERE location_id=(:1) OR location_id=(:2)),
-            e1 AS (
-                SELECT mon, AVG(num1) AS avg1 FROM (
-                    SELECT yr, mon, COUNT(event_type) as num1
-                    FROM allevents
-                    WHERE location_id=(:3)
-                    GROUP BY yr, mon)
-                GROUP BY mon),
-            e2 AS (
-                SELECT mon, AVG(num2) AS avg2 FROM (
-                    SELECT yr, mon, COUNT(event_type) as num2
-                    FROM allevents
-                    WHERE location_id=(:4)
-                    GROUP BY yr, mon)
-                GROUP BY mon),
-            allmonths AS (
-                SELECT DISTINCT EXTRACT(MONTH FROM event_date) AS mon FROM events)
-            SELECT allmonths.mon AS mon, COALESCE(avg1, 0), COALESCE(avg2, 0)
-            FROM (allmonths LEFT JOIN e1 ON  e1.mon=allmonths.mon) LEFT JOIN e2 ON allmonths.mon=e2.mon
-            ORDER BY mon ASC
-        """
+        month_or_year = request.POST["btnradio"]
+        if month_or_year == "month":
+            query_items = (fips1, fips2, fips1, fips2)
+            select_query = """
+                WITH allevents AS (
+                    SELECT EXTRACT(MONTH FROM event_date) AS mon, EXTRACT(YEAR FROM event_date) AS yr, location_id, event_type
+                    FROM michaelrodelo.events
+                    WHERE location_id=(:1) OR location_id=(:2)),
+                e1 AS (
+                    SELECT mon, AVG(num1) AS avg1 FROM (
+                        SELECT yr, mon, COUNT(event_type) as num1
+                        FROM allevents
+                        WHERE location_id=(:3)
+                        GROUP BY yr, mon)
+                    GROUP BY mon),
+                e2 AS (
+                    SELECT mon, AVG(num2) AS avg2 FROM (
+                        SELECT yr, mon, COUNT(event_type) as num2
+                        FROM allevents
+                        WHERE location_id=(:4)
+                        GROUP BY yr, mon)
+                    GROUP BY mon),
+                allmonths AS (
+                    SELECT DISTINCT EXTRACT(MONTH FROM event_date) AS mon FROM events)
+                SELECT allmonths.mon AS mon, COALESCE(avg1, 0), COALESCE(avg2, 0)
+                FROM (allmonths LEFT JOIN e1 ON  e1.mon=allmonths.mon) LEFT JOIN e2 ON allmonths.mon=e2.mon
+                ORDER BY mon ASC
+            """
+        else:
+            query_items = (fips1, fips1, fips2, fips2)
+            select_query = """
+                WITH allyears AS (
+                    SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events),
+                t1 AS (
+                    SELECT allyears.year, COALESCE(location_id, (:1)) AS loc1, count(event_type) AS num1
+                    FROM allyears LEFT JOIN michaelrodelo.events e 
+                        ON EXTRACT(YEAR FROM e.event_date)=allyears.year AND location_id=(:2)
+                    GROUP BY allyears.year, location_id),
+                t2 AS (
+                    SELECT allyears.year, COALESCE(location_id, (:3)) AS loc2, count(event_type) AS num2
+                    FROM allyears LEFT JOIN michaelrodelo.events e
+                        ON EXTRACT(YEAR FROM e.event_date)=allyears.year AND location_id=(:4)
+                    GROUP BY allyears.year, location_id)
+                SELECT year, num1, num2 FROM t1 NATURAL JOIN t2 ORDER BY year ASC
+            """
         res = cursor.execute(select_query, query_items)
         for item in res:
             the_chart["yr"].append(item[0])
@@ -226,7 +248,6 @@ def twofips(request):
                 the_chart["data3"].append(item[3])
                 context["d3hide"] = 0
         context["the_chart"] = the_chart
-
     location_data = []
     location_res = cursor.execute(
         """
