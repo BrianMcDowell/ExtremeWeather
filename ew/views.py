@@ -72,18 +72,24 @@ def results(request):
         wx_vs_wx = False
         if ioi == "pop":
             select_query = """
-                WITH target AS (
-                    SELECT yr.year, location_id, COUNT(event_type) AS num
-                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events) yr LEFT JOIN 
-                    michaelrodelo.events e
-                    ON EXTRACT(YEAR FROM e.event_date)=yr.year
+                WITH allyears AS (
+                    SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year
+                    FROM events),
+                events_here AS (
+                    SELECT yr.year, location_id, COUNT(event_type) AS ct
+                    FROM allyears yr 
+                    LEFT JOIN events e ON
+                        EXTRACT(YEAR FROM e.event_date)=yr.year
                         AND location_id=(:1)
-                        AND event_type IN (:2, :3, :4)
-                    GROUP BY yr.year, location_id)
-                SELECT t.year, p.population, t.num
-                FROM michaelrodelo.populations p, target t
-                WHERE p.year=t.year AND p.location_id IN 
-                    (SELECT DISTINCT location_id FROM target WHERE location_id IS NOT NULL)
+                        AND event_type IN ((:2), (:3), (:4))
+                    GROUP BY  yr.year, location_id)
+                SELECT eh.year, p.population, eh.ct
+                FROM populations p, events_here eh
+                WHERE p.year=eh.year
+                    AND p.location_id IN
+                        (SELECT DISTINCT location_id
+                        FROM events_here
+                        WHERE location_id IS NOT NULL)
                 ORDER BY year
             """
             context["ioi"] = json.dumps("Population")
@@ -161,6 +167,115 @@ def results(request):
     context["location_data"] = location_data
     conn.close()
     return render(request, 'WebsiteDesign/Results.html', context=context)
+
+
+def onefips(request):
+    context = {}
+    conn = oracledb_conn()
+    cursor = conn.cursor()
+    the_chart = {
+        "yr": [],
+        "data1": [],
+        "data2": [],
+        "data3": [],
+    }
+    context["d3hide"] = 1
+    fips = "None"
+    if request.method == "POST":
+        """ Obtain query items from request.POST """
+        for key, val in request.POST.items():
+            print(key, val)
+
+        tornado = "NONE"
+        hail = "NONE"
+        wind = "NONE"
+        fips = request.POST["fips"]
+        #context["fips"] = fips
+        wx_ioi = []
+        if "Tornado" in request.POST.keys():
+            tornado = "TORN"
+            wx_ioi.append("Tornadoes")
+        if "Hail" in request.POST.keys():
+            hail = "HAIL"
+            wx_ioi.append("Hail")
+        if "Wind" in request.POST.keys():
+            wind = "WIND"
+            wx_ioi.append("Wind")
+        query_items = (fips, tornado, hail, wind)
+        ioi = request.POST["btnradio"]
+        wx_vs_wx = False
+        select_query = """
+            WITH all_years AS (
+                SELECT year, location_id, population FROM michaelrodelo.populations WHERE location_id=:fips),
+            delta_fips AS (
+                SELECT year, location_id, (((popa/popb) - 1) * 100) AS change
+                FROM (SELECT a.year, b.location_id, b.population AS popb, a.population AS popa
+                    FROM all_years b INNER JOIN all_years a
+                    ON b.year=a.year-1)),
+            sum_all_years AS (
+                SELECT year, SUM(population) as sumpop
+                FROM michaelrodelo.populations
+                WHERE location_id IN 
+                    (SELECT fips 
+                    FROM michaelrodelo.location 
+                    WHERE statename = 
+                        (SELECT statename 
+                        FROM michaelrodelo.location
+                        WHERE fips=:fips))
+                GROUP BY year),
+            delta_state AS (
+                SELECT year, (((popa/popb) - 1) * 100) AS change
+                FROM (SELECT a.year, b.sumpop AS popb, a.sumpop AS popa
+                    FROM sum_all_years b INNER JOIN sum_all_years a
+                    ON b.year=a.year-1)),
+            combined_pop AS (
+                SELECT delta_fips.year, delta_fips.location_id, delta_fips.change AS delta_fips, delta_state.change AS delta_state
+                FROM delta_fips, delta_state
+                WHERE delta_state.year=delta_fips.year
+                ORDER BY year ASC),
+            target AS (
+                SELECT yr.year, location_id, COUNT(event_type) AS num
+                FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events) yr
+                LEFT JOIN michaelrodelo.events e ON
+                    EXTRACT(YEAR FROM e.event_date)=yr.year
+                    AND location_id=:fips AND event_type IN (:torn, :hail, :wind)
+                GROUP BY yr.year, location_id)
+            SELECT t.year, ROUND(p.delta_fips, 5) AS delta_fips, ROUND(p.delta_state, 5) AS delta_state, t.num
+            FROM combined_pop p, target t
+            WHERE p.year=t.year
+                AND p.location_id IN
+                    (SELECT DISTINCT location_id FROM target WHERE location_id IS NOT NULL)
+            ORDER BY year ASC
+        """
+        query_items = dict(fips=fips, torn=tornado, hail=hail, wind=wind)
+        context["ioi"] = json.dumps("Population")
+
+        res = cursor.execute(select_query, query_items)
+
+
+        for item in res:
+            the_chart["yr"].append(item[0])
+            the_chart["data1"].append(item[1])
+            the_chart["data2"].append(item[2])
+            the_chart["data3"].append(item[3])
+        context["the_chart"] = the_chart
+
+        context["wx_ioi"] = json.dumps(", ".join(wx_ioi))
+    context["fips"] = fips
+    location_data = []
+    location_res = cursor.execute(
+        """
+        SELECT fips, countyname, statename
+        FROM michaelrodelo.location
+        ORDER BY fips ASC
+        """
+    )
+    for location in location_res:
+        location_data.append([location[0], location[1], location[2]])
+    context["location_data"] = location_data
+    conn.close()
+    return render(request, 'WebsiteDesign/OneFips.html', context=context)
+
 
 def twofips(request):
     # Need to change html to work with two FIPS codes
