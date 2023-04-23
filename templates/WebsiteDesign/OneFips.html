@@ -28,7 +28,7 @@
               <a class="nav-link active" aria-current="page" href="{% url 'views' %} " >Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'results' %} ">Single County Deep Dive</a>
+              <a class="nav-link" href="{% url 'onefips' %} ">Single County Deep Dive</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
@@ -48,7 +48,11 @@
                         <select class="form-select" aria-label="fips" name="fips">
                             <option selected>Select a FIPS code</option>
                             {% for iter in location_data %}
-                                <option value={{ iter.0 }}>{{ iter.2 }} - {{ iter.0 }} - {{ iter.1 }}</option>
+                                {% if fips|add:"0" == iter.0|add:"0" %}
+                                    <option value={{ iter.0 }} selected>{{ iter.2 }} - {{ iter.0 }} - {{ iter.1 }}</option>
+                                {% else %}
+                                    <option value={{ iter.0 }}>{{ iter.2 }} - {{ iter.0 }} - {{ iter.1 }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
@@ -56,16 +60,28 @@
         <!-- CHOOSE WEATHER INTEREST -->
                     <p class="categoryOption"><u>Choose your Weather Interest:</u></p>
                     <div class="form-check" id="WxCheckbox">
-                        <input type="checkbox" id="wx1" name="Tornado" value="TORN">
+                        {% if torn %}
+                            <input type="checkbox" id="wx1" name="Tornado" value="TORN" checked>
+                        {% else %}
+                            <input type="checkbox" id="wx1" name="Tornado" value="TORN">
+                        {% endif %}
                         <label for="wx1">Tornado</label>
+                    {% if hail %}
+                        <input type="checkbox" id="wx2" name="Hail" value="HAIL" checked>
+                    {% else %}
                         <input type="checkbox" id="wx2" name="Hail" value="HAIL">
+                    {% endif %}
                         <label for="wx2">Hail</label>
+                    {% if wind %}
+                        <input type="checkbox" id="wx3" name="Wind" value="WIND" checked>
+                    {% else %}
                         <input type="checkbox" id="wx3" name="Wind" value="WIND">
+                    {% endif %}
                         <label for="wx3">Wind</label>
                     </div>
 
                     <div class="btn-group-vertical" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" value="pop" checked>
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" value="pop">
                         <label class="btn btn-outline-primary" for="btnradio1">Population vs Weather</label>
                         <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" value="hpi">
                         <label class="btn btn-outline-primary" for="btnradio2">Housing Prices Vs Weather</label>
@@ -94,7 +110,6 @@
                 </script>
             </div>
             <div class="col-9">
-
                 {{ fips|safe }}
                 <div class="row">
                     <canvas id="myChart" width="800" height="500"></canvas>
@@ -105,6 +120,7 @@
                     let d2={{ the_chart.data2|safe }};
                     let d3={{ the_chart.data3|safe }};
                     let ioi={{ ioi|safe }};
+                    let wx_vs_wx={{ wx_vs_wx|yesno:"true,false" }};
 
                     let wx={{ wx_ioi|safe }};
                     let ctx = document.getElementById('myChart');
@@ -113,9 +129,9 @@
                         data: {
                             labels: yr,
                             datasets: [
-                                {type: 'line', label: 'fips', data: d1, yAxisID: 'y1',},
-                                {type: 'line', label: 'state', data: d2, yAxisID: 'y1',},
-                                {type: 'bar', label: 'WX', data: d3, yAxisID: 'y2'}
+                                {type: 'line', label: 'fips '+ioi.toString()+' % change', data: d1, yAxisID: 'y1',},
+                                {type: 'line', label: 'state '+ioi.toString()+' % change', data: d2, yAxisID: 'y1',},
+                                {type: 'bar', label: wx.toString(), data: d3, yAxisID: 'y2'}
 
                             ]
                         },
@@ -136,13 +152,24 @@
                             }
                         }
                     });
+                    if (wx_vs_wx == true) {
+                        myChart.data.datasets.forEach((dataset) => {
+                            dataset.type="bar";
+                        });
+                        myChart.data.datasets[0].label = "Tornado";
+                        myChart.data.datasets[1].label = "Hail";
+                        myChart.data.datasets[2].label = "Wind";
+                        myChart.data.datasets[2].yAxisID = 'y1';
+                        myChart.options.scales.y2.display = false;
+                        myChart.update();
+                    }
                 </script>
                 <!-- https://www.chartjs.org/docs/latest/developers/updates.html Could be useful to update chart instead of using hidden on dataset -->
                 <div class="row">
-                    <p>Item of Interest: {{ the_chart.data1|safe }}</p>
-                    <p>Weather events: {{ the_chart.data2|safe }}</p>
-                    <p> {{ the_chart.data3|safe }}</p>
-                    <p>{{ d3hide|safe }}</p>
+                    <p>d1: {{ the_chart.data1|safe }}</p>
+                    <p>d2: {{ the_chart.data2|safe }}</p>
+                    <p>d3: {{ the_chart.data3|safe }}</p>
+
                 </div>
             </div>
         </div>

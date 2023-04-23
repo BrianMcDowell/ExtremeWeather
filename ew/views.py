@@ -90,7 +90,7 @@ def results(request):
                         (SELECT DISTINCT location_id
                         FROM events_here
                         WHERE location_id IS NOT NULL)
-                ORDER BY year
+                ORDER BY year 
             """
             context["ioi"] = json.dumps("Population")
         elif ioi == "hpi":
@@ -195,64 +195,150 @@ def onefips(request):
         if "Tornado" in request.POST.keys():
             tornado = "TORN"
             wx_ioi.append("Tornadoes")
+            context['torn'] = True
         if "Hail" in request.POST.keys():
             hail = "HAIL"
             wx_ioi.append("Hail")
+            context['hail'] = True
         if "Wind" in request.POST.keys():
             wind = "WIND"
             wx_ioi.append("Wind")
+            context['wind'] = True
         query_items = (fips, tornado, hail, wind)
         ioi = request.POST["btnradio"]
         wx_vs_wx = False
-        select_query = """
-            WITH all_years AS (
-                SELECT year, location_id, population FROM michaelrodelo.populations WHERE location_id=:fips),
-            delta_fips AS (
-                SELECT year, location_id, (((popa/popb) - 1) * 100) AS change
-                FROM (SELECT a.year, b.location_id, b.population AS popb, a.population AS popa
-                    FROM all_years b INNER JOIN all_years a
+        if ioi == "pop":
+            select_query = """
+                WITH all_years AS (
+                    SELECT year, location_id, population FROM michaelrodelo.populations WHERE location_id=:fips),
+                delta_fips AS (
+                    SELECT year, location_id, (((popa/popb) - 1) * 100) AS change
+                    FROM (SELECT a.year, b.location_id, b.population AS popb, a.population AS popa
+                        FROM all_years b INNER JOIN all_years a
+                        ON b.year=a.year-1)),
+                sum_all_years AS (
+                    SELECT year, SUM(population) as sumpop
+                    FROM michaelrodelo.populations
+                    WHERE location_id IN 
+                        (SELECT fips 
+                        FROM michaelrodelo.location 
+                        WHERE statename = 
+                            (SELECT statename 
+                            FROM michaelrodelo.location
+                            WHERE fips=:fips))
+                    GROUP BY year),
+                delta_state AS (
+                    SELECT year, (((popa/popb) - 1) * 100) AS change
+                    FROM (SELECT a.year, b.sumpop AS popb, a.sumpop AS popa
+                        FROM sum_all_years b INNER JOIN sum_all_years a
+                        ON b.year=a.year-1)),
+                combined_pop AS (
+                    SELECT delta_fips.year, delta_fips.location_id, delta_fips.change AS delta_fips, delta_state.change AS delta_state
+                    FROM delta_fips, delta_state
+                    WHERE delta_state.year=delta_fips.year
+                    ORDER BY year ASC),
+                target AS (
+                    SELECT yr.year, location_id, COUNT(event_type) AS num
+                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events) yr
+                    LEFT JOIN michaelrodelo.events e ON
+                        EXTRACT(YEAR FROM e.event_date)=yr.year
+                        AND location_id=:fips AND event_type IN (:torn, :hail, :wind)
+                    GROUP BY yr.year, location_id)
+                SELECT t.year, ROUND(p.delta_fips, 5) AS delta_fips, ROUND(p.delta_state, 5) AS delta_state, t.num
+                FROM combined_pop p, target t
+                WHERE p.year=t.year
+                    AND p.location_id IN
+                        (SELECT DISTINCT location_id FROM target WHERE location_id IS NOT NULL)
+                ORDER BY year ASC
+            """
+            context["ioi"] = json.dumps("Population")
+        elif ioi == "hpi":
+            select_query = """
+                WITH target_hpi AS (
+                    SELECT year, location_id, (((hpia/hpib) - 1) * 100) AS change
+                    FROM (SELECT a.year, b.location_id, b.hpi AS hpib, a.hpi AS hpia
+                        FROM (
+                            SELECT year, location_id, hpi
+                            FROM michaelrodelo.housing_prices
+                            WHERE location_id=:fips) b 
+                    INNER JOIN (
+                        SELECT year, location_id, hpi
+                        FROM michaelrodelo.housing_prices
+                        WHERE location_id=:fips) a
                     ON b.year=a.year-1)),
-            sum_all_years AS (
-                SELECT year, SUM(population) as sumpop
-                FROM michaelrodelo.populations
-                WHERE location_id IN 
-                    (SELECT fips 
-                    FROM michaelrodelo.location 
-                    WHERE statename = 
-                        (SELECT statename 
-                        FROM michaelrodelo.location
-                        WHERE fips=:fips))
-                GROUP BY year),
-            delta_state AS (
-                SELECT year, (((popa/popb) - 1) * 100) AS change
-                FROM (SELECT a.year, b.sumpop AS popb, a.sumpop AS popa
-                    FROM sum_all_years b INNER JOIN sum_all_years a
-                    ON b.year=a.year-1)),
-            combined_pop AS (
-                SELECT delta_fips.year, delta_fips.location_id, delta_fips.change AS delta_fips, delta_state.change AS delta_state
-                FROM delta_fips, delta_state
-                WHERE delta_state.year=delta_fips.year
-                ORDER BY year ASC),
-            target AS (
-                SELECT yr.year, location_id, COUNT(event_type) AS num
-                FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events) yr
-                LEFT JOIN michaelrodelo.events e ON
-                    EXTRACT(YEAR FROM e.event_date)=yr.year
-                    AND location_id=:fips AND event_type IN (:torn, :hail, :wind)
-                GROUP BY yr.year, location_id)
-            SELECT t.year, ROUND(p.delta_fips, 5) AS delta_fips, ROUND(p.delta_state, 5) AS delta_state, t.num
-            FROM combined_pop p, target t
-            WHERE p.year=t.year
-                AND p.location_id IN
-                    (SELECT DISTINCT location_id FROM target WHERE location_id IS NOT NULL)
-            ORDER BY year ASC
-        """
+                state_hpis AS (
+                    SELECT *
+                    FROM michaelrodelo.housing_prices
+                    WHERE location_id IN 
+                        (SELECT fips 
+                        FROM michaelrodelo.location 
+                        WHERE statename = 
+                            (SELECT statename 
+                            FROM michaelrodelo.location
+                            WHERE fips=:fips))
+                    ORDER BY location_id ASC),
+                delta_state AS (
+                    SELECT year, AVG(delta) AS change
+                    FROM (
+                        SELECT a.year AS year, (((a.hpi/b.hpi)-1)*100) AS delta
+                        FROM state_hpis b LEFT JOIN state_hpis a
+                        ON b.location_id=a.location_id
+                            AND b.year=a.year-1)
+                    WHERE year IS NOT NULL
+                    GROUP BY year),
+                combined_hpi AS (
+                    SELECT target_hpi.year, target_hpi.location_id, target_hpi.change AS delta_fips, delta_state.change AS delta_state
+                    FROM target_hpi, delta_state
+                    WHERE delta_state.year=target_hpi.year
+                    ORDER BY year ASC),
+                target AS (
+                    SELECT yr.year, location_id, COUNT(event_type) AS num
+                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM events) yr
+                    LEFT JOIN michaelrodelo.events e ON
+                        EXTRACT(YEAR FROM e.event_date)=yr.year
+                        AND location_id=:fips AND event_type IN (:torn, :hail, :wind)
+                    GROUP BY yr.year, location_id)
+                SELECT t.year, ROUND(h.delta_fips, 5) AS delta_fips, ROUND(h.delta_state, 5) AS delta_state, t.num
+                FROM combined_hpi h, target t
+                WHERE h.year=t.year
+                    AND h.location_id IN
+                        (SELECT DISTINCT location_id FROM target WHERE location_id IS NOT NULL)
+                ORDER BY year ASC
+            """
+            context["ioi"] = json.dumps("HPI")
+        else:
+            select_query = """
+                WITH allyears AS (
+                    SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events),
+                allevents AS (
+                    SELECT allyears.year, event_type
+                    FROM allyears LEFT JOIN michaelrodelo.events e
+                        ON EXTRACT(YEAR FROM e.event_date)=allyears.year
+                        AND location_id=:fips),
+                events1 AS (
+                    SELECT allyears.year, COUNT(event_type) AS tornado
+                    FROM allyears LEFT JOIN allevents e
+                        ON e.year=allyears.year AND event_type=:torn
+                    GROUP BY  allyears.year
+                    ),
+                events2 AS (
+                    SELECT allyears.year, COUNT(event_type) AS hail
+                    FROM allyears LEFT JOIN allevents e
+                        ON e.year=allyears.year AND event_type=:hail
+                    GROUP BY  allyears.year
+                    ),
+                events3 AS (
+                    SELECT allyears.year, COUNT(event_type) AS wind
+                    FROM allyears LEFT JOIN allevents e
+                        ON e.year=allyears.year AND event_type=:wind
+                    GROUP BY  allyears.year)
+                SELECT * FROM events1 NATURAL JOIN events2 NATURAL JOIN events3 ORDER BY year
+            """
+            context["ioi"] = json.dumps("WX vs WX")
+            wx_vs_wx = True
+        context["wx_vs_wx"] = wx_vs_wx
         query_items = dict(fips=fips, torn=tornado, hail=hail, wind=wind)
-        context["ioi"] = json.dumps("Population")
-
         res = cursor.execute(select_query, query_items)
-
-
         for item in res:
             the_chart["yr"].append(item[0])
             the_chart["data1"].append(item[1])
