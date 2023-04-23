@@ -105,8 +105,8 @@
             data: {
                 labels: yr,
                 datasets: [
-                    {type: 'line', label: d1state.toString() + ' Population', data: d1},
-                    {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2},
+                    {type: 'line', label: d1state.toString() + ' Population', data: d1, yAxisID: 'y1',},
+                    {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2, yAxisID: 'y2',},
                 ]
             },
             options: {
