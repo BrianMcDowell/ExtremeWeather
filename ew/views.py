@@ -261,3 +261,72 @@ def twofips(request):
     context["location_data"] = location_data
     conn.close()
     return render(request, 'WebsiteDesign/TwoFipsResults.html', context=context)
+
+def states(request):
+    # borrowed from twofips
+    context = {}
+    conn = oracledb_conn()
+    cursor = conn.cursor()
+    the_chart = {
+        "yr": [],
+        "data1": [],
+        "data2": [],
+    }
+    state1 = "None"
+    state2 = "None"
+    if request.method == "POST":
+        for key, val in request.POST.items():
+            print(key, val)
+        state1 = request.POST["state1"]
+        state2 = request.POST["state2"]
+        the_chart["d1state"] = json.dumps(state1)
+        the_chart["d2state"] = json.dumps(state2)
+
+        query_items = (state1, 'NH')
+        select_query = """
+            SELECT p.year, total_population, total_events
+            FROM
+                (SELECT sum(p.population) as total_population, l.statename, p.year
+                FROM michaelrodelo.populations p
+                INNER JOIN michaelrodelo.location l 
+                ON p.location_id = l.fips
+                WHERE statename = (:1)      
+                GROUP BY l.statename, p.year) p
+            INNER JOIN
+                (SELECT statename, year, sum(num) AS total_events
+                FROM michaelrodelo.location l 
+                    INNER JOIN 
+                    (SELECT yr.year, location_id, COUNT(event_type) AS num
+                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year 
+                        FROM michaelrodelo.events) yr 
+                    LEFT JOIN michaelrodelo.events e
+                    ON EXTRACT(YEAR FROM e.event_date)=yr.year
+                    GROUP BY yr.year, location_id) e
+                ON l.fips = e.location_id
+                WHERE statename = (:1)      
+                GROUP BY statename, year) e
+            ON p.year = e.year
+            ORDER BY year ASC    
+        """
+        res = cursor.execute(select_query, query_items)
+        for item in res:
+            the_chart["yr"].append(item[0])
+            the_chart["data1"].append(item[1])
+            the_chart["data2"].append(item[2])
+            if len(item) > 3:
+                the_chart["data3"].append(item[3])
+                context["d3hide"] = 0
+        context["the_chart"] = the_chart
+    location_data = []
+    location_res = cursor.execute(
+        """
+        SELECT DISTINCT statename
+        FROM michaelrodelo.location
+        ORDER BY statename ASC
+        """
+    )
+    for location in location_res:
+        location_data.append([location[0]])
+    context["location_data"] = location_data
+    conn.close()
+    return render(request, 'WebsiteDesign/StatesResults.html', context=context)
