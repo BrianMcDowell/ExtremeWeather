@@ -48,7 +48,7 @@
     <form id = "weatherForm" style="text-align: center;" action="{% url 'states' %} " method="post">
     <!-- STATES OF INTEREST -->
         <div>
-        <p class="categoryOption"><u>Choose a First State:</u></p>
+        <p class="categoryOption"><u>Choose a State:</u></p>
             <select class="form-select" aria-label="state" name="state1">
                 <option selected>Select a State</option>
                 {% for iter in location_data %}
@@ -57,7 +57,7 @@
             </select>
         </div>
     <p><br></p>
-
+<!-- uncomment to get 2nd state functionality
     <div>
         <p class="categoryOption"><u>Choose a Second State:</u></p>
             <select class="form-select" aria-label="state" name="state2">
@@ -67,7 +67,7 @@
                 {% endfor %}
             </select>
         </div>
-
+-->
 
     <!-- SUBMIT AND CLEAR BUTTONS -->
         <p><br></p>
@@ -79,10 +79,6 @@
 <script>
     function resetForm() {
         document.getElementById("weatherForm").reset();
-        document.getElementById("WeatherCheckbox").checked = false;
-        document.getElementById("YearDropdown").selectedIndex = 0;
-        document.getElementById("RentDropdown").selectedIndex = 0;
-        document.getElementById("RoomsCheckbox").checked = false;
     }
 </script>
             </div>

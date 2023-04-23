@@ -278,11 +278,11 @@ def states(request):
         for key, val in request.POST.items():
             print(key, val)
         state1 = request.POST["state1"]
-        state2 = request.POST["state2"]
+    #    state2 = request.POST["state2"]
         the_chart["d1state"] = json.dumps(state1)
         the_chart["d2state"] = json.dumps(state2)
 
-        query_items = (state1, 'NH')
+        query_items = (state1, 'WY')
         select_query = """
             SELECT p.year, total_population, total_events
             FROM
