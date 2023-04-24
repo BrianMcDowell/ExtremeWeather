@@ -57,7 +57,7 @@
             </select>
         </div>
     <p><br></p>
-<!-- uncomment to get 2nd state functionality
+
     <div>
         <p class="categoryOption"><u>Choose a Second State:</u></p>
             <select class="form-select" aria-label="state" name="state2">
@@ -67,7 +67,6 @@
                 {% endfor %}
             </select>
         </div>
--->
 
     <!-- SUBMIT AND CLEAR BUTTONS -->
         <p><br></p>
@@ -91,6 +90,8 @@
         let yr={{ the_chart.yr|safe }};
         let d1={{ the_chart.data1|safe }};
         let d2={{ the_chart.data2|safe }};
+        let d3={{ the_chart.data3|safe }};
+        let d4={{ the_chart.data4|safe }};
 
         let d1state={{ the_chart.d1state|safe }};
         let d2state={{ the_chart.d2state|safe }};
@@ -103,6 +104,8 @@
                 datasets: [
                     {type: 'line', label: d1state.toString() + ' Population', data: d1, yAxisID: 'y1',},
                     {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2, yAxisID: 'y2',},
+                    {type: 'line', label: d2state.toString() + ' Population', data: d3, yAxisID: 'y3',},
+                    {type: 'bar', label: d2state.toString() + 'Weather Events', data: d4, yAxisID: 'y4',},
                 ]
             },
             options: {
@@ -117,7 +120,16 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                        grid: {drawOnChartArea: false,}
+                    },
+                    y3: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y4: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
                     }
                 }
             }
@@ -128,7 +140,8 @@
         <p>yr: {{ the_chart.yr|safe }}</p>
         <p>data1: {{ the_chart.data1|safe }}</p>
         <p>data2: {{ the_chart.data2|safe }}</p>
-    </div>
+        <p>data3: {{ the_chart.data1|safe }}</p>
+        <p>data4: {{ the_chart.data2|safe }}</p>   </div>
         </div>
         </div>
     </div>
