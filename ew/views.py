@@ -302,7 +302,7 @@ def onefips(request):
                     ORDER BY year ASC),
                 target AS (
                     SELECT yr.year, location_id, COUNT(event_type) AS num
-                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM events) yr
+                    FROM (SELECT DISTINCT EXTRACT(YEAR FROM event_date) AS year FROM michaelrodelo.events) yr
                     LEFT JOIN michaelrodelo.events e ON
                         EXTRACT(YEAR FROM e.event_date)=yr.year
                         AND location_id=:fips AND event_type IN (:torn, :hail, :wind)
