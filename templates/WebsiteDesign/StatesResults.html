@@ -28,12 +28,12 @@
               <a class="nav-link active" aria-current="page" href="{% url 'views' %} " >Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'onefips' %} ">Single County Deep Dive</a>
+              <a class="nav-link" href="{% url 'results' %} ">Single County Deep Dive</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'twofips' %} ">County Comparison</a>
             </li>
-            <li class="nav-item">
+          <li class="nav-item">
               <a class="nav-link" href="{% url 'states' %} ">State Comparison</a>
             </li>
           </ul>
@@ -45,45 +45,27 @@
     <div class="container">
         <div class="row">
             <div class="col-3">
-    <form id = "weatherForm" style="text-align: center;" action="{% url 'twofips' %} " method="post">
-    <!-- FIPS OF INTEREST -->
+    <form id = "weatherForm" style="text-align: center;" action="{% url 'states' %} " method="post">
+    <!-- STATES OF INTEREST -->
         <div>
-        <p class="categoryOption"><u>Choose a FIPS Code:</u></p>
-            <select class="form-select" aria-label="fips" name="fips1">
-                <option selected>Select a FIPS code</option>
+        <p class="categoryOption"><u>Choose a State:</u></p>
+            <select class="form-select" aria-label="state" name="state1">
+                <option selected>Select a State</option>
                 {% for iter in location_data %}
-                    <option value={{ iter.0 }}>{{ iter.2 }} - {{ iter.0 }} - {{ iter.1 }}</option>
+                    <option value={{ iter.0 }}>{{ iter.2 }}{{ iter.0 }}</option>
                 {% endfor %}
             </select>
         </div>
     <p><br></p>
+
     <div>
-        <p class="categoryOption"><u>Choose a FIPS Code:</u></p>
-            <select class="form-select" aria-label="fips" name="fips2">
-                <option selected>Select a FIPS code</option>
+        <p class="categoryOption"><u>Choose a Second State:</u></p>
+            <select class="form-select" aria-label="state" name="state2">
+                <option selected>Select a State</option>
                 {% for iter in location_data %}
-                    <option value={{ iter.0 }}>{{ iter.2 }} - {{ iter.0 }} - {{ iter.1 }}</option>
+                    <option value={{ iter.0 }}>{{ iter.2 }}{{ iter.0 }}</option>
                 {% endfor %}
             </select>
-        </div>
-
-        <!-- CHOOSE WEATHER INTEREST -->
-    <p class="categoryOption"><u>Choose your Weather Interest:</u></p>
-    <div class="form-check" id="WxCheckbox">
-      <input type="checkbox" id="wx1" name="Tornado" value="TORN">
-      <label for="wx1">Tornado</label>
-      <input type="checkbox" id="wx2" name="Hail" value="HAIL">
-      <label for="wx2">Hail</label>
-      <input type="checkbox" id="wx3" name="Wind" value="WIND">
-      <label for="wx3">Wind</label>
-    </div>
-
-    <p><br></p>
-        <div class="btn-group-vertical" role="group" aria-label="Basic radio toggle button group">
-            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" value="month" checked>
-            <label class="btn btn-outline-primary" for="btnradio1">By Month</label>
-            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" value="year">
-            <label class="btn btn-outline-primary" for="btnradio2">By Year</label>
         </div>
 
     <!-- SUBMIT AND CLEAR BUTTONS -->
@@ -96,15 +78,11 @@
 <script>
     function resetForm() {
         document.getElementById("weatherForm").reset();
-        document.getElementById("WeatherCheckbox").checked = false;
-        document.getElementById("YearDropdown").selectedIndex = 0;
-        document.getElementById("RentDropdown").selectedIndex = 0;
-        document.getElementById("RoomsCheckbox").checked = false;
     }
 </script>
             </div>
         <div class="col-9">
-            {{ d1fips|safe }} {{ d2fips|safe }}
+            {{ d1state|safe }} {{ d2state|safe }}
     <div class="row">
         <canvas id="myChart" width="800" height="500"></canvas>
     </div>
@@ -112,9 +90,11 @@
         let yr={{ the_chart.yr|safe }};
         let d1={{ the_chart.data1|safe }};
         let d2={{ the_chart.data2|safe }};
+        let d3={{ the_chart.data3|safe }};
+        let d4={{ the_chart.data4|safe }};
 
-        let d1fips={{ the_chart.d1fips|safe }};
-        let d2fips={{ the_chart.d2fips|safe }};
+        let d1state={{ the_chart.d1state|safe }};
+        let d2state={{ the_chart.d2state|safe }};
 
         let ctx = document.getElementById('myChart');
 
@@ -122,21 +102,47 @@
             data: {
                 labels: yr,
                 datasets: [
-                    {type: 'bar', label: d1fips.toString(), data: d1},
-                    {type: 'bar', label: d2fips.toString(), data: d2},
+                    {type: 'line', label: d1state.toString() + ' Population', data: d1, yAxisID: 'y1', backgroundColor: '#993333', fillColor: '#993333',},
+                    {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2, yAxisID: 'y2', backgroundColor: '#d27979', fillColor: '#d27979',},
+                    {type: 'line', label: d2state.toString() + ' Population', data: d3, yAxisID: 'y1', backgroundColor: '#003399', fillColor: '#003399',},
+                    {type: 'bar', label: d2state.toString() + 'Weather Events', data: d4, yAxisID: 'y2', backgroundColor: '#80aaff', fillColor: '#80aaff',},
                 ]
             },
             options: {
                 responsive: false,
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y2: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                    }
+{% comment %}   removed these axes to clean up the chart view.
+                    y3: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y4: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                    }{% endcomment %}
                 }
+            }
         });
     </script>
 
     <div class="row">
         <p>yr: {{ the_chart.yr|safe }}</p>
-        <p>data1: {{ the_chart.data1|safe }}</p>
-        <p>data2: {{ the_chart.data2|safe }}</p>
-    </div>
+        <p>s1 population data: {{ the_chart.data1|safe }}</p>
+        <p>s1 weather event data: {{ the_chart.data2|safe }}</p>
+        <p>s2 population data: {{ the_chart.data1|safe }}</p>
+        <p>s2 weather event data: {{ the_chart.data2|safe }}</p>   </div>
         </div>
         </div>
     </div>
