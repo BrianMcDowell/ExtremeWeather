@@ -40,8 +40,8 @@ def openOneFips(request):
 def openOneFips(request):
     return render(request, 'WebsiteDesign/TwoFipsResults.html')
 
-def openResults(request):
-    return render(request, 'WebsiteDesign/Results.html')
+def openStatesResults(request):
+    return render(request, 'WebsiteDesign/StatesResults.html')
 
 
 def results(request):
