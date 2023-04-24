@@ -102,10 +102,10 @@
             data: {
                 labels: yr,
                 datasets: [
-                    {type: 'line', label: d1state.toString() + ' Population', data: d1, yAxisID: 'y1',},
-                    {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2, yAxisID: 'y2',},
-                    {type: 'line', label: d2state.toString() + ' Population', data: d3, yAxisID: 'y3',},
-                    {type: 'bar', label: d2state.toString() + 'Weather Events', data: d4, yAxisID: 'y4',},
+                    {type: 'line', label: d1state.toString() + ' Population', data: d1, yAxisID: 'y1', backgroundColor: '#993333', fillColor: '#993333',},
+                    {type: 'bar', label: d1state.toString() + 'Weather Events', data: d2, yAxisID: 'y2', backgroundColor: '#d27979', fillColor: '#d27979',},
+                    {type: 'line', label: d2state.toString() + ' Population', data: d3, yAxisID: 'y1', backgroundColor: '#003399', fillColor: '#003399',},
+                    {type: 'bar', label: d2state.toString() + 'Weather Events', data: d4, yAxisID: 'y2', backgroundColor: '#80aaff', fillColor: '#80aaff',},
                 ]
             },
             options: {
@@ -120,7 +120,8 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                    },
+                    }
+{% comment %}   removed these axes to clean up the chart view.
                     y3: {
                         type: 'linear',
                         display: true,
@@ -130,7 +131,7 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                    }
+                    }{% endcomment %}
                 }
             }
         });
@@ -138,10 +139,10 @@
 
     <div class="row">
         <p>yr: {{ the_chart.yr|safe }}</p>
-        <p>data1: {{ the_chart.data1|safe }}</p>
-        <p>data2: {{ the_chart.data2|safe }}</p>
-        <p>data3: {{ the_chart.data1|safe }}</p>
-        <p>data4: {{ the_chart.data2|safe }}</p>   </div>
+        <p>s1 population data: {{ the_chart.data1|safe }}</p>
+        <p>s1 weather event data: {{ the_chart.data2|safe }}</p>
+        <p>s2 population data: {{ the_chart.data1|safe }}</p>
+        <p>s2 weather event data: {{ the_chart.data2|safe }}</p>   </div>
         </div>
         </div>
     </div>
