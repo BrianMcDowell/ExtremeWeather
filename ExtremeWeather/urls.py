@@ -22,5 +22,6 @@ urlpatterns = [
     # other URL patterns go here
     path('results/', views.results, name='results'),
     path('twofips/', views.twofips, name='twofips'),
+    path('onefips/', views.onefips, name='onefips'),
     path('states/', views.states, name='states'),
 ]
