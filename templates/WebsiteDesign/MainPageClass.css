@@ -4,7 +4,7 @@
 }
 
 .mainBody {
-    background-color: #98e6fa;
+    background-color: #d6f0ff;
     font-family: "Times New Roman", Times, Serif;
 }
 
@@ -28,6 +28,9 @@
  */
 .submitBtn {
     display: inline-block;
+    font-family: "Times New Roman", Times, Serif;
+    font-size: 16px;
+    border-color: black;
 }
 
 /*Clear Button

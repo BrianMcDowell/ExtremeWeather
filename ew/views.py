@@ -34,6 +34,15 @@ def my_view(request):
     conn.close()
     return render(request, 'WebsiteDesign/MainPage.html', context=context)
 
+def openOneFips(request):
+    return render(request, 'WebsiteDesign/OneFips.html')
+
+def openOneFips(request):
+    return render(request, 'WebsiteDesign/TwoFipsResults.html')
+
+def openResults(request):
+    return render(request, 'WebsiteDesign/Results.html')
+
 
 def results(request):
     context = {}
