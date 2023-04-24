@@ -427,7 +427,7 @@ def twofips(request):
                         GROUP BY yr, mon)
                     GROUP BY mon),
                 allmonths AS (
-                    SELECT DISTINCT EXTRACT(MONTH FROM event_date) AS mon FROM events)
+                    SELECT DISTINCT EXTRACT(MONTH FROM event_date) AS mon FROM michaelrodelo.events)
                 SELECT allmonths.mon AS mon, COALESCE(avg1, 0), COALESCE(avg2, 0)
                 FROM (allmonths LEFT JOIN e1 ON  e1.mon=allmonths.mon) LEFT JOIN e2 ON allmonths.mon=e2.mon
                 ORDER BY mon ASC
